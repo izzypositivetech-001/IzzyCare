@@ -20,10 +20,11 @@ export default async function Success(props: {
   const appointment = await getAppointment(appointmentId);
 
   const doctor = Doctors.find(
-    (doc) =>
-      doc.name.toLowerCase().trim() ===
-      ((appointment?.primaryPhysician || "").toLowerCase().trim())
-  );
+    (doc) => {
+  const physician = appointment?.primaryPhysician || "";
+  return physician.toLowerCase().trim() === doc.name.toLowerCase().trim();
+}
+  )
 
   return (
     <div className='flex h-screen max-h-screen px-[5%]'>

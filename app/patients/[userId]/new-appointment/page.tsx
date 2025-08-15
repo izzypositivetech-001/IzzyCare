@@ -3,14 +3,13 @@ import { getPatient } from '@/lib/actions/patient.actions';
 import Image from 'next/image';
 import React from 'react';
 
-// Define the SearchParamProps type if not already defined
+// Updated type for Next.js 15
 type SearchParamProps = {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 };
 
-export default async function NewAppointment({ 
-  params: { userId } 
-}: SearchParamProps) {
+export default async function NewAppointment({ params }: SearchParamProps) {
+  const { userId } = await params; // ✅ Unwrap the promise
   const patient = await getPatient(userId);
 
   return (
@@ -28,7 +27,7 @@ export default async function NewAppointment({
           <AppointmentForm
             type="create"
             userId={userId}
-            patientId={patient.$id}
+            patientId={patient?.$id ?? ''}
           />
 
           <p className="copyright mt-10 py-12">

@@ -1,0 +1,5 @@
+npm error code ERR_SSL_BAD_SIGNATURE
+npm error 1C600000:error:0A00007B:SSL routines:tls_process_key_exchange:bad signature:c:\ws\deps\openssl\openssl\ssl\statem\statem_clnt.c:2314:
+npm error
+npm error A complete log of this run can be found in: C:\Users\USER\AppData\Local\npm-cache\_logs\2025-08-14T00_34_09_004Z-debug-0.log
+

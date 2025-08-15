@@ -30,7 +30,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onRefresh,
+  
 }: DataTableProps<TData, TValue>) {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
@@ -56,10 +56,7 @@ export function DataTable<TData, TValue>({
     setExpandedRows(newExpandedRows);
   };
 
-  // Define which columns to show on mobile (first 2-3 most important ones)
-  const getMobileColumns = () => {
-    return columns.slice(0, 3); // Show first 3 columns on mobile
-  };
+ 
 
   const getHiddenColumnsData = (row: any) => {
     const hiddenColumns = columns.slice(3); // Columns 4+ are hidden on mobile

@@ -8,7 +8,6 @@ import {
   FormMessage,
 } from "@/components/form"
 import { Input } from "@/components/input"
-import { Form } from "react-hook-form"
 import { FormFieldType } from "./forms/PatientForm"
 import Image from "next/image"
 import 'react-phone-number-input/style.css'

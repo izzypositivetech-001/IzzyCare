@@ -20,7 +20,6 @@ import { decryptKey, encryptKey } from "@/lib/utils";
 
 const PasskeyModal = () => {
   const router = useRouter();
-  const path = usePathname();
   const [open, setOpen] = useState(true);
   const [passkey, setpasskey] = useState("");
   const [error, setError] = useState("");

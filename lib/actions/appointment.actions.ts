@@ -1,15 +1,10 @@
 "use server";
-import { Message } from './../../node_modules/@opentelemetry/instrumentation-amqplib/build/src/types.d';
 import { ID, Query } from "node-appwrite";
 import {
   APPOINTMENT_COLLECTION_ID,
-  BUCKET_ID,
   DATABASE_ID,
   databases,
-  ENDPOINT,
-  messaging,
-  PATIENT_COLLECTION_ID,
-  PROJECT_ID,
+  messaging
 } from "../appwrite.config";
 import { formatDateTime, parseStringify } from "../utils";
 import { Appointment } from "@/types/appwrite.types";

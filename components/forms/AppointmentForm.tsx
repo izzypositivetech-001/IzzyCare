@@ -16,8 +16,15 @@ import { SelectItem } from "../ui/select";
 import { createAppointment, updateAppointment } from "@/lib/actions/appointment.actions";
 import { Appointment } from "@/types/appwrite.types";
 
-// Add Status type definition (if not already imported)
 type Status = "pending" | "scheduled" | "cancelled";
+
+interface AppointmentFormProps {
+  userId: string;
+  patientId: string;
+  type: "create" | "cancel" | "schedule";
+  appointment?: Appointment;
+  setOpen?: (open: boolean) => void;
+}
 
 const AppointmentForm = ({
   userId,
@@ -25,13 +32,7 @@ const AppointmentForm = ({
   type,
   appointment,
   setOpen
-}: {
-  userId: string;
-  patientId: string;
-  type: "create" | "cancel" | "schedule";
-  appointment?: Appointment;
-  setOpen?: (open: boolean) => void; // Made optional since it's not always passed
-}) => {
+}: AppointmentFormProps) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const AppointmentFormValidation = getAppointmentSchema(type);
@@ -39,11 +40,11 @@ const AppointmentForm = ({
   const form = useForm<z.infer<typeof AppointmentFormValidation>>({
     resolver: zodResolver(AppointmentFormValidation),
     defaultValues: {
-      primaryPhysician: appointment ? appointment.primaryPhysician : "",
+      primaryPhysician: appointment?.primaryPhysician ?? "",
       schedule: appointment ? new Date(appointment.schedule) : new Date(),
-      reason: appointment ? appointment.reason : "",
-      note: appointment ? appointment.note : "",
-      cancellationReason: appointment ? appointment.cancellationReason ?? "" : "",
+      reason: appointment?.reason ?? "",
+      note: appointment?.note ?? "",
+      cancellationReason: appointment?.cancellationReason ?? "",
     },
   });
 
@@ -70,58 +71,47 @@ const AppointmentForm = ({
           patient: patientId,
           primaryPhysician: values.primaryPhysician,
           schedule: new Date(values.schedule),
-          reason: values.reason!,
-          note: values.note,
-          status: status,
+          reason: values.reason ?? "",
+          note: values.note ?? "",
+          status,
         };
 
-        const appointment = await createAppointment(appointmentData);
-        if (appointment) {
+        const newAppointment = await createAppointment(appointmentData);
+        if (newAppointment) {
           form.reset();
-          router.push(`/patients/${userId}/new-appointment/success?appointmentId=${appointment.$id}`);
+          router.push(`/patients/${userId}/new-appointment/success?appointmentId=${newAppointment.$id}`);
         }
-      } else {
+      } else if (appointment?.$id) {
         const appointmentToUpdate = {
           userId,
-          appointmentId: appointment?.$id!,
+          appointmentId: appointment.$id,
           appointment: {
-            primaryPhysician: values?.primaryPhysician,
-            schedule: new Date(values?.schedule),
-            status: status,
-            cancellationReason: values?.cancellationReason,
+            primaryPhysician: values.primaryPhysician,
+            schedule: new Date(values.schedule),
+            status,
+            cancellationReason: values.cancellationReason,
           },
           type
         };
 
         const updatedAppointment = await updateAppointment(appointmentToUpdate);
         if (updatedAppointment) {
-          setOpen && setOpen(false);
+          setOpen?.(false);
           form.reset();
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   }
 
-  let buttonLabel: string;
-
-  switch (type) {
-    case 'cancel':
-      buttonLabel = 'Cancel Appointment';
-      break;
-    case 'create':
-      buttonLabel = 'Create Appointment';
-      break;
-    case 'schedule':
-      buttonLabel = 'Schedule Appointment';
-      break;
-    default:
-      buttonLabel = 'Submit';
-      break;
-  }
+  const buttonLabel = {
+    cancel: 'Cancel Appointment',
+    create: 'Create Appointment',
+    schedule: 'Schedule Appointment',
+  }[type] ?? 'Submit';
 
   return (
     <Form {...form}>

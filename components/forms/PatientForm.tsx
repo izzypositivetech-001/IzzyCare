@@ -1,4 +1,3 @@
-// components/forms/PatientForm.tsx
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -38,9 +37,10 @@ const PatientForm = () => {
   async function onSubmit(values: z.infer<typeof UserFormValidation>) {
     setIsLoading(true)
     try {
-      const user = await createUser(values)
-      console.log('Created user:', user)
-      if (user?.$id) router.push(`/patients/${user.$id}/register`)
+      const newUser = await createUser(values)
+      if (newUser?.$id) {
+        router.push(`/patients/${newUser.$id}/register`)
+      }
     } catch (error) {
       console.error('Form submission error:', error)
     } finally {
@@ -80,7 +80,7 @@ const PatientForm = () => {
           fieldType={FormFieldType.PHONE_INPUT}
           control={form.control}
           name="phone"
-          label="Phone No"
+          label="Phone Number"
           placeholder="(234) 123 456 7890"
         />
 

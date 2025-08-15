@@ -23,7 +23,7 @@ import { SelectItem } from "../ui/select";
 import Image from "next/image";
 import FileUploader from "../FileUploader";
 
-// ✅ Use input type instead of infer to match resolver
+
 type PatientFormValues = z.input<typeof PatientFormValidation>;
 
 const RegisterForm = ({ user }: { user: User }) => {
@@ -56,24 +56,21 @@ const RegisterForm = ({ user }: { user: User }) => {
         identificationDocument: formData,
       };
 
-      // @ts-expect-error
+      // @ts-expect-error - Temporary until we properly type the registerPatient function
       const patient = await registerPatient(patientData);
       if (patient) {
         router.push(`/patients/${user.$id}/new-appointment`);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-12 flex-1"
-      >
-        {/* Personal Info */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12 flex-1">
         <section className="space-y-4">
           <h1 className="header">Welcome 👋</h1>
           <p className="text-dark-700">Let us know more about yourself</p>
@@ -182,7 +179,6 @@ const RegisterForm = ({ user }: { user: User }) => {
           />
         </div>
 
-        {/* Medical Info */}
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header">Medical Information</h2>
@@ -234,7 +230,7 @@ const RegisterForm = ({ user }: { user: User }) => {
           <CustomFormField
             fieldType={FormFieldType.TEXTAREA}
             control={form.control}
-            label="allergies"
+            label="Allergies"
             name="allergies"
             placeholder="Peanuts, Penicillin, Pollen"
           />
@@ -266,7 +262,6 @@ const RegisterForm = ({ user }: { user: User }) => {
           />
         </div>
 
-        {/* Identification */}
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header">Identification and Verification</h2>
@@ -307,7 +302,6 @@ const RegisterForm = ({ user }: { user: User }) => {
           )}
         />
 
-        {/* Consents */}
         <section className="space-y-6">
           <div className="mb-9 space-y-1">
             <h2 className="sub-header">Consent and Privacy</h2>

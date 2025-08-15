@@ -35,5 +35,5 @@ Designed for clinics and hospitals to manage patient records, schedule appointme
 ### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/izzypositivetech-001/IzzyCare.git
-cd patient-management-system
+cd IzzyCare
 

@@ -41,6 +41,47 @@ export const getAppointment = async (appointmentId: string) => {
   }
 };
 
+// export const getRecentAppointmentList = async () => {
+//   try {
+//     const appointments = await databases.listDocuments(
+//       DATABASE_ID!,
+//       APPOINTMENT_COLLECTION_ID!,
+//       [Query.orderDesc("$createdAt")]
+//     );
+
+//     const initialCounts = {
+//       scheduledCount: 0,
+//       pendingCount: 0,
+//       cancelledCount: 0,
+//     };
+
+//     const counts = (appointments.documents as Appointment[]).reduce(
+//       (acc, appointment) => {
+//         if (appointment.status === "scheduled") {
+//           acc.scheduledCount += 1;
+//         } else if (appointment.status === "pending") {
+//           acc.pendingCount += 1;
+//         } else if (appointment.status === "cancelled") {
+//           acc.cancelledCount += 1;
+//         }
+
+//         return acc;
+//       },
+//       initialCounts
+//     );
+
+//     const data = {
+//       totalCount: appointments.total,
+//       ...counts,
+//       documents: appointments.documents,
+//     };
+
+//     return parseStringify(data);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
 export const getRecentAppointmentList = async () => {
   try {
     const appointments = await databases.listDocuments(
@@ -64,16 +105,21 @@ export const getRecentAppointmentList = async () => {
         } else if (appointment.status === "cancelled") {
           acc.cancelledCount += 1;
         }
-
         return acc;
       },
       initialCounts
     );
 
-    const data = {
+    const data: {
+      totalCount: number;
+      scheduledCount: number;
+      pendingCount: number;
+      cancelledCount: number;
+      documents: Appointment[]; 
+    } = {
       totalCount: appointments.total,
       ...counts,
-      documents: appointments.documents,
+      documents: appointments.documents as Appointment[], // 👈 cast here
     };
 
     return parseStringify(data);
@@ -81,6 +127,7 @@ export const getRecentAppointmentList = async () => {
     console.log(error);
   }
 };
+
 
 // export const updateAppointment = async ({
 //   appointmentId,

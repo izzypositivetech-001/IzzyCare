@@ -1,6 +1,6 @@
 import { DataTable } from '@/components/table/DataTable'
 import StatCard from '@/components/StatCard'
-import { columns } from '@/components/table/columns'
+import { columns as appointmentColumns } from '@/components/table/columns'
 import { getRecentAppointmentList } from '@/lib/actions/appointment.actions'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -33,26 +33,26 @@ const Admin = async () => {
         </section>
 
         <section className='admin-stat'>
-            <StatCard
-              type="appointment"
-              count={appointments.scheduledCount}
-              label='Scheduled appointment'
-              icon='/assets/icons/appointments.svg'
-            />
-             <StatCard
-              type="pending"
-              count={appointments.pendingCount}
-              label='Pending appointment'
-              icon='/assets/icons/pending.svg'
-            />
-             <StatCard
-              type="cancelled"
-              count={appointments.cancelledCount}
-              label='Cancelled appointment'
-              icon='/assets/icons/cancelled.svg'
-            />
+           <StatCard
+  type="appointment"
+  count={appointments?.scheduledCount ?? 0}
+  label="Scheduled appointment"
+  icon="/assets/icons/appointments.svg"
+/>
+<StatCard
+  type="pending"
+  count={appointments?.pendingCount ?? 0}
+  label="Pending appointment"
+  icon="/assets/icons/pending.svg"
+/>
+<StatCard
+  type="cancelled"
+  count={appointments?.cancelledCount ?? 0}
+  label="Cancelled appointment"
+  icon="/assets/icons/cancelled.svg"
+/>
         </section>
-        <DataTable columns={columns} data={appointments.documents} />
+       <DataTable columns={appointmentColumns} data={appointments?.documents ?? []} />
       </main>
     </div>
   )

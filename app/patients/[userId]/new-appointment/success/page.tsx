@@ -22,7 +22,7 @@ export default async function Success(props: {
   const doctor = Doctors.find(
     (doc) =>
       doc.name.toLowerCase().trim() ===
-      (appointment.primaryPhysician || "").toLowerCase().trim()
+      ((appointment?.primaryPhysician || "").toLowerCase().trim())
   );
 
   return (
@@ -73,7 +73,7 @@ export default async function Success(props: {
               alt='calendar' 
               priority
             />
-            <p>{formatDateTime(appointment.schedule).dateTime}</p>
+            <p>{appointment ? formatDateTime(appointment.schedule).dateTime : "No schedule available"}</p>
           </div>
         </section>
 

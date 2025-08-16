@@ -37,7 +37,7 @@ const PatientForm = () => {
   async function onSubmit(values: z.infer<typeof UserFormValidation>) {
     setIsLoading(true)
     try {
-      const newUser = await createUser(values)
+      const newUser = await createUser({ ...values, userId: 'some-user-id' })
       if (newUser?.$id) {
         router.push(`/patients/${newUser.$id}/register`)
       }

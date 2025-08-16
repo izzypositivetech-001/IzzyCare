@@ -17,6 +17,7 @@ import { BUCKET_ID } from "../appwrite.config";
 
 // ✅ Types for params
 interface CreateUserParams {
+    userId: string;
   email: string;
   phone: string;
   name: string;
@@ -32,14 +33,22 @@ export const createUser = async (user: CreateUserParams) => {
     if (!databases) {
       throw new Error("Databases client is not initialized.");
     }
+
+     if (!user.userId) {
+      throw new Error("❌ userId is required but missing in createUser()");
+    }
+    
     const newPatient = await databases.createDocument(
       DATABASE_ID!,            
       PATIENT_COLLECTION_ID!,  
       ID.unique(),             
       {
+        userId: user.userId,
         name: user.name,
         email: user.email,
         phone: user.phone,
+        privacyConsent: true,
+        identificationDocumentUrl: "", 
       }
     );
 

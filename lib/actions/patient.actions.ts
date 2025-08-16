@@ -29,44 +29,43 @@ interface RegisterUserParams {
 
 export const createUser = async (user: CreateUserParams) => {
   try {
-    if (!users) {
-      throw new Error("Users client is not initialized.");
+    if (!databases) {
+      throw new Error("Databases client is not initialized.");
     }
-    const newUser = await users.create(
-      ID.unique(),
-      user.email,
-      user.phone,
-      undefined,
-      user.name
+    const newPatient = await databases.createDocument(
+      DATABASE_ID!,            
+      PATIENT_COLLECTION_ID!,  
+      ID.unique(),             
+      {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+      }
     );
 
-    console.log("New User:", newUser);
-    return newUser;
+    console.log("✅ New Patient Created:", newPatient);
+    return newPatient;
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === 409
-    ) {
-      if (!users) {
-        throw new Error("Users client is not initialized.");
-      }
-      const document = await users.list([Query.equal("email", [user.email])]);
-      return document?.users[0];
-    }
+    console.error("❌ Error creating patient:", error);
+    throw error;
   }
 };
 
 export const getUser = async (userId: string) => {
   try {
-    if (!users) {
-      throw new Error("Users client is not initialized.");
+    if (!databases) {
+      throw new Error("Databases client is not initialized.");
     }
-    const user = await users.get(userId);
-    return parseStringify(user);
-  } catch (error) {
-    console.error(error);
+    const user = await databases.getDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      userId
+    );
+
+    return user; // Already JSON serializable
+  } catch (error: any) {
+    console.error("❌ Error fetching patient:", error?.message || error);
+    throw error;
   }
 };
 

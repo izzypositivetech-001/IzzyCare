@@ -14,6 +14,9 @@ export const createAppointment = async (
   appointment: CreateAppointmentParams
 ) => {
   try {
+    if (!databases) {
+      throw new Error("Databases service is not available.");
+    }
     const newAppointment = await databases.createDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
@@ -29,6 +32,9 @@ export const createAppointment = async (
 
 export const getAppointment = async (appointmentId: string) => {
   try {
+    if (!databases) {
+      throw new Error("Databases service is not available.");
+    }
     const appointment = await databases.getDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
@@ -84,6 +90,9 @@ export const getAppointment = async (appointmentId: string) => {
 
 export const getRecentAppointmentList = async () => {
   try {
+    if (!databases) {
+      throw new Error("Databases service is not available.");
+    }
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
@@ -171,6 +180,9 @@ export const updateAppointment = async ({
   type,
 }: UpdateAppointmentParams) => {
   try {
+    if (!databases) {
+      throw new Error("Databases service is not available.");
+    }
     const updatedAppointment = await databases.updateDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
@@ -190,6 +202,9 @@ ${type === 'schedule'
 }`;
 
     // Use userId (must have phone in Appwrite) OR direct phone number
+    if (!messaging) {
+      throw new Error("Messaging service is not available.");
+    }
     await messaging.createSms(
       ID.unique(),
       smsMessage,
@@ -206,13 +221,16 @@ ${type === 'schedule'
 
 export const sendSMSNotification = async (userId: string, content: string) => {
   try {
+    if (!messaging) {
+      throw new Error("Messaging service is not available.");
+    }
     const message = await messaging.createSms(
       ID.unique(),
       content,
       [],
       [userId]
-    )
-    return parseStringify(message)
+    );
+    return parseStringify(message);
   } catch (error) {
     console.log(error); 
   }

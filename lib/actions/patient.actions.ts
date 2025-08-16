@@ -29,6 +29,9 @@ interface RegisterUserParams {
 
 export const createUser = async (user: CreateUserParams) => {
   try {
+    if (!users) {
+      throw new Error("Users client is not initialized.");
+    }
     const newUser = await users.create(
       ID.unique(),
       user.email,
@@ -46,6 +49,9 @@ export const createUser = async (user: CreateUserParams) => {
       "code" in error &&
       error.code === 409
     ) {
+      if (!users) {
+        throw new Error("Users client is not initialized.");
+      }
       const document = await users.list([Query.equal("email", [user.email])]);
       return document?.users[0];
     }
@@ -54,6 +60,9 @@ export const createUser = async (user: CreateUserParams) => {
 
 export const getUser = async (userId: string) => {
   try {
+    if (!users) {
+      throw new Error("Users client is not initialized.");
+    }
     const user = await users.get(userId);
     return parseStringify(user);
   } catch (error) {
@@ -63,6 +72,9 @@ export const getUser = async (userId: string) => {
 
 export const getPatient = async (userId: string) => {
   try {
+    if (!databases) {
+      throw new Error("Databases client is not initialized.");
+    }
     const patients = await databases.listDocuments(
       DATABASE_ID!,
       PATIENT_COLLECTION_ID!,
@@ -88,7 +100,14 @@ export const registerPatient = async ({
         identificationDocument.get("fileName") as string
       );
 
+      if (!storage) {
+        throw new Error("Storage client is not initialized.");
+      }
       file = await storage.createFile(BUCKET_ID!, ID.unique(), inputFile);
+    }
+
+    if (!databases) {
+      throw new Error("Databases client is not initialized.");
     }
 
     const newPatient = await databases.createDocument(

@@ -49,6 +49,8 @@ export const createUser = async (user: CreateUserParams) => {
         phone: user.phone,
         privacyConsent: true,
         identificationDocumentUrl: "", 
+        treatmentConsent: true,
+        disclosureConsent: true,
       }
     );
 

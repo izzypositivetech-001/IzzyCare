@@ -2,8 +2,8 @@ import { getUser } from '@/lib/actions/patient.actions'
 import RegisterForm from '@/components/forms/RegisterForm'
 import Image from 'next/image'
 
-const Register = async ({ params }: { params: { userId: string } }) => {
-  const { userId } = params
+const Register = async ({ params }: { params: Promise< { userId: string }> }) => {
+  const { userId } = await params
   const userDoc = await getUser(userId)
   // Map Document to User type
   const user = userDoc

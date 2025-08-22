@@ -26,7 +26,7 @@ export default async function Home(props: { searchParams: Promise<SearchParams> 
               <p className="justify-items-end text-dark-600 xl:text-left">
                © 2025 IzzyCare
                 </p>
-               <Link href="/?admin=true" className="text-green-500">Admin</Link>
+               <Link href="/admin" className="text-green-500">Admin</Link>
           </div>
         </div>
      </section>

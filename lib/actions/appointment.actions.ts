@@ -21,12 +21,20 @@ export const createAppointment = async (
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       ID.unique(),
-      appointment
+      {
+        ...appointment,
+        status: "pending" // Explicitly set initial status
+      }
     );
+
+    // 👈 ADD THIS: Revalidate dashboard after creating appointment
+    revalidatePath('/admin');
+    revalidatePath('/');
 
     return parseStringify(newAppointment);
   } catch (error) {
-    console.log(error);
+    console.error("Create appointment error:", error);
+    throw error; // Re-throw to handle in form
   }
 };
 
@@ -43,21 +51,26 @@ export const getAppointment = async (appointmentId: string) => {
 
     return parseStringify(appointment);
   } catch (error) {
-    console.log(error);
+    console.error("Get appointment error:", error);
+    throw error;
   }
 };
-
 
 export const getRecentAppointmentList = async () => {
   try {
     if (!databases) {
       throw new Error("Databases service is not available.");
     }
+    
+    console.log("Fetching appointments from:", { DATABASE_ID, APPOINTMENT_COLLECTION_ID });
+    
     const appointments = await databases.listDocuments(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       [Query.orderDesc("$createdAt")]
     );
+
+    console.log("Raw appointments:", appointments.documents.length);
 
     const initialCounts = {
       scheduledCount: 0,
@@ -67,6 +80,8 @@ export const getRecentAppointmentList = async () => {
 
     const counts = (appointments.documents as Appointment[]).reduce(
       (acc, appointment) => {
+        console.log("Appointment status:", appointment.status); // Debug status values
+        
         if (appointment.status === "scheduled") {
           acc.scheduledCount += 1;
         } else if (appointment.status === "pending") {
@@ -79,24 +94,26 @@ export const getRecentAppointmentList = async () => {
       initialCounts
     );
 
-    const data: {
-      totalCount: number;
-      scheduledCount: number;
-      pendingCount: number;
-      cancelledCount: number;
-      documents: Appointment[]; 
-    } = {
+    const data = {
       totalCount: appointments.total,
       ...counts,
-      documents: appointments.documents as Appointment[], // 👈 cast here
+      documents: appointments.documents as Appointment[],
     };
 
+    console.log("Final counts:", counts);
     return parseStringify(data);
   } catch (error) {
-    console.log(error);
+    console.error("Get appointments error:", error);
+    // Return empty data instead of undefined
+    return parseStringify({
+      totalCount: 0,
+      scheduledCount: 0,
+      pendingCount: 0,
+      cancelledCount: 0,
+      documents: []
+    });
   }
 };
-
 
 export const updateAppointment = async ({
   appointmentId,
@@ -108,11 +125,20 @@ export const updateAppointment = async ({
     if (!databases) {
       throw new Error("Databases service is not available.");
     }
+
+    // 👈 FIX: Explicitly set the status based on type
+    const appointmentData = {
+      ...appointment,
+      status: type === 'schedule' ? 'scheduled' : 'cancelled'
+    };
+
+    console.log("Updating appointment:", { appointmentId, type, status: appointmentData.status });
+
     const updatedAppointment = await databases.updateDocument(
       DATABASE_ID!,
       APPOINTMENT_COLLECTION_ID!,
       appointmentId,
-      appointment
+      appointmentData
     );
 
     if (!updatedAppointment) {
@@ -126,21 +152,29 @@ ${type === 'schedule'
   : `We regret to inform you that your appointment has been cancelled for the following reason: ${appointment.cancellationReason}.`
 }`;
 
-    // Use userId (must have phone in Appwrite) OR direct phone number
-    if (!messaging) {
-      throw new Error("Messaging service is not available.");
+    // Send SMS notification
+    if (messaging) {
+      try {
+        await messaging.createSms(
+          ID.unique(),
+          smsMessage,
+          [],
+          [userId]
+        );
+      } catch (smsError) {
+        console.error("SMS sending failed:", smsError);
+        // Don't fail the entire operation if SMS fails
+      }
     }
-    await messaging.createSms(
-      ID.unique(),
-      smsMessage,
-      [],
-      [userId] // Or replace with [] and use phone numbers
-    );
 
+    // Revalidate both admin and main pages
     revalidatePath('/admin');
+    revalidatePath('/');
+    
     return parseStringify(updatedAppointment);
   } catch (error) {
-    console.log(error);
+    console.error("Update appointment error:", error);
+    throw error;
   }
 };
 
@@ -157,6 +191,7 @@ export const sendSMSNotification = async (userId: string, content: string) => {
     );
     return parseStringify(message);
   } catch (error) {
-    console.log(error); 
+    console.error("SMS notification error:", error);
+    throw error;
   }
 }

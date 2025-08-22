@@ -73,9 +73,9 @@ export const getUser = async (userId: string) => {
       userId
     );
 
-    return user; // Already JSON serializable
+    return parseStringify(user)
   } catch (error: any) {
-    console.error("❌ Error fetching patient:", error?.message || error);
+    console.error("Error fetching patient:", error?.message || error);
     throw error;
   }
 };

@@ -2,19 +2,29 @@ import { getUser } from '@/lib/actions/patient.actions'
 import RegisterForm from '@/components/forms/RegisterForm'
 import Image from 'next/image'
 
-const Register = async ({ params }: { params: Promise< { userId: string }> }) => {
+const Register = async ({ params }: { params: Promise<{ userId: string }> }) => {
   const { userId } = await params
-  const userDoc = await getUser(userId)
-  // Map Document to User type
-  const user = userDoc
-    ? {
+  
+  // Add proper error handling here
+  let user = null;
+  let error = null;
+  
+  try {
+    const userDoc = await getUser(userId);
+    
+    if (userDoc) {
+      user = {
         $id: userDoc.$id,
         name: userDoc.name,
         email: userDoc.email,
         phone: userDoc.phone,
         // add other User properties if needed
-      }
-    : null;
+      };
+    }
+  } catch (err) {
+    console.error("Failed to fetch user:", err);
+    error = "Unable to load user data. Please try again.";
+  }
 
   return (
     <div className="flex h-screen max-h-screen">
@@ -27,7 +37,14 @@ const Register = async ({ params }: { params: Promise< { userId: string }> }) =>
             width={1000}
             className="mb-12 h-10 w-fit"
           />
-          {user ? (
+          
+          {error ? (
+            <div className="text-red-500 p-4 border border-red-300 rounded-md">
+              {error}
+              <br />
+              <small>Check your environment variables in Vercel.</small>
+            </div>
+          ) : user ? (
             <RegisterForm user={user} />
           ) : (
             <div className="text-red-500">User not found.</div>

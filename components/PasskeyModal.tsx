@@ -18,6 +18,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { decryptKey, encryptKey } from "@/lib/utils";
 
+const ADMIN_PASSKEY = process.env.NEXT_PUBLIC_ADMIN_PASSKEY;
+
 const PasskeyModal = () => {
   const router = useRouter();
   const [open, setOpen] = useState(true);
@@ -26,15 +28,12 @@ const PasskeyModal = () => {
 
   // Auto login if passkey is already stored
   useEffect(() => {
-    const encryptedKey = typeof window !== "undefined"
-      ? window.localStorage.getItem("accessKey")
-      : null;
-    
+    const encryptedKey = localStorage.getItem("accessKey");
     if (encryptedKey) {
       const accessKey = decryptKey(encryptedKey);
-      if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+      if (accessKey === ADMIN_PASSKEY) {
         setOpen(false);
-        router.push('/admin');
+        router.replace("/admin");
       }
     }
   }, [router]);
@@ -42,11 +41,11 @@ const PasskeyModal = () => {
   const validatePasskey = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
 
-    if (passkey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+    if (passkey === ADMIN_PASSKEY) {
       const encryptedKey = encryptKey(passkey);
       localStorage.setItem("accessKey", encryptedKey);
       setOpen(false);
-      router.push('/admin');
+      router.replace("/admin");
     } else {
       setError("Invalid passkey. Please try again");
     }
@@ -72,7 +71,7 @@ const PasskeyModal = () => {
               className="cursor-pointer"
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && closeModal()}
+              onKeyDown={(e) => e.key === "Enter" && closeModal()}
             />
           </AlertDialogTitle>
           <AlertDialogDescription>
